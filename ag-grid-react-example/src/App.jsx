@@ -238,7 +238,9 @@ function App() {
           getRowId={(params) => String(params.data.__index)}
           onGridReady={onGridReady}
           onViewportChanged={onViewportChanged}
-          rowBuffer={20}
+          rowBuffer={0}
+          viewportRowModelPageSize={40}
+          viewportRowModelBufferSize={0}
           suppressCellFocus={true}
           enableCellChangeFlash={true}
         />
