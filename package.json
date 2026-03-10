@@ -1,0 +1,13 @@
+{
+  "name": "ag-grid-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:react": "pnpm --filter ag-grid-react-example dev",
+    "start:angular": "pnpm --filter ag-grid-angular-example start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "AG Grid Viewport Row Model Examples"
+}

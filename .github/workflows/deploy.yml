@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build React app
+        run: pnpm --filter ag-grid-react-example build
+        env:
+          VITE_BASE_URL: /ag-grid-react-example/
+
+      - name: Build Angular app
+        run: pnpm --filter ag-grid-angular-example build
+        working-directory: ag-grid-angular-example
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Create combined output directory
+        run: |
+          mkdir -p _site/ag-grid-react-example
+          mkdir -p _site/ag-grid-angular-example
+          cp -r ag-grid-react-example/dist/* _site/ag-grid-react-example/
+          cp -r ag-grid-angular-example/dist/ag-grid-angular-example/browser/* _site/ag-grid-angular-example/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
