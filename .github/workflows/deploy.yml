@@ -39,7 +39,7 @@ jobs:
           VITE_BASE_URL: /ag-grid-react-example/
 
       - name: Build Angular app
-        run: pnpm --filter ag-grid-angular-example build -- --base-href /ag-grid-angular-example/
+        run: pnpm --filter ag-grid-angular-example exec ng build --base-href /ag-grid-angular-example/
         working-directory: ag-grid-angular-example
 
       - name: Setup Pages
