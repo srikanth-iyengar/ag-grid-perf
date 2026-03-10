@@ -36,10 +36,10 @@ jobs:
       - name: Build React app
         run: pnpm --filter ag-grid-react-example build
         env:
-          VITE_BASE_URL: /ag-grid-react-example/
+          VITE_BASE_URL: /${{ github.event.repository.name }}/ag-grid-react-example/
 
       - name: Build Angular app
-        run: pnpm --filter ag-grid-angular-example exec ng build --base-href /ag-grid-angular-example/
+        run: pnpm --filter ag-grid-angular-example exec ng build --base-href /${{ github.event.repository.name }}/ag-grid-angular-example/
         working-directory: ag-grid-angular-example
 
       - name: Setup Pages
