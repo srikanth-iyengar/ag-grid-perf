@@ -132,8 +132,8 @@ function generateTrade(id: number): Trade {
           class="ag-theme-custom"
           style="width: 100%; height: 100%;"
           [columnDefs]="columnDefs"
-          [rowData]="rowData"
           [defaultColDef]="defaultColDef"
+          [rowModelType]="'viewport'"
           [animateRows]="false"
           [getRowId]="getRowId"
           [rowBuffer]="0"
@@ -212,7 +212,6 @@ export class AppComponent implements OnInit, OnDestroy {
     suppressMovable: true
   };
 
-  rowData: Trade[] = [];
   totalRows = TOTAL_ROWS;
   totalPnl = 0;
   tradeCount = 0;
@@ -223,6 +222,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private tradesData: Trade[] = [];
   private tickInterval: any;
   private dataLoaded = false;
+  private viewportParams: any;
 
   getRowId = (params: GetRowIdParams) => String(params.data.__index);
 
@@ -231,8 +231,11 @@ export class AppComponent implements OnInit, OnDestroy {
       for (let i = 0; i < TOTAL_ROWS; i++) {
         this.tradesData.push(generateTrade(i + 1));
       }
-      this.rowData = [...this.tradesData];
       this.dataLoaded = true;
+      if (this.viewportParams) {
+        this.viewportParams.setRowCount(TOTAL_ROWS);
+        this.pushViewportRows(this.renderedRange.start, this.renderedRange.end);
+      }
       this.startTicking();
     }, LATENCY_MS);
   }
@@ -270,7 +273,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
       if (updates.length > 0) {
-        this.gridApi.applyTransactionAsync({ update: updates });
+        this.pushViewportRows(this.renderedRange.start, this.renderedRange.end);
         this.totalPnl += (Math.random() - 0.5) * updates.length * 1000;
         this.tradeCount += updates.length;
         this.volume += updates.reduce((sum, t) => sum + t.notional, 0);
@@ -287,14 +290,41 @@ export class AppComponent implements OnInit, OnDestroy {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.renderedRange = { start: 0, end: 49 };
-    if (this.dataLoaded) {
-      this.startTicking();
-    }
+    this.gridApi.setViewportDatasource({
+      init: (vpParams: any) => {
+        this.viewportParams = vpParams;
+        vpParams.setRowCount(TOTAL_ROWS);
+        if (this.dataLoaded) {
+          this.pushViewportRows(this.renderedRange.start, this.renderedRange.end);
+        }
+      },
+      setViewportRange: (firstRow: number, lastRow: number) => {
+        this.renderedRange = { start: firstRow, end: lastRow };
+        if (!this.dataLoaded) return;
+        this.pushViewportRows(firstRow, lastRow);
+      },
+      destroy: () => {
+        this.viewportParams = null;
+      }
+    });
   }
 
   onViewportChanged(params: any) {
     const topRow = this.gridApi.getFirstDisplayedRow();
     const bottomRow = this.gridApi.getLastDisplayedRow();
     this.renderedRange = { start: topRow, end: bottomRow };
+  }
+
+  private pushViewportRows(start: number, end: number) {
+    if (!this.viewportParams) return;
+    const rangeStart = Math.max(0, start);
+    const rangeEnd = Math.min(TOTAL_ROWS - 1, end);
+    setTimeout(() => {
+      if (!this.viewportParams) return;
+      this.viewportParams.setRowData(
+        rangeStart,
+        this.tradesData.slice(rangeStart, rangeEnd + 1)
+      );
+    }, LATENCY_MS);
   }
 }

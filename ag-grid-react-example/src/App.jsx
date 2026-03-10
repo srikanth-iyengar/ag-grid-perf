@@ -118,12 +118,12 @@ const columnDefs = [
 ];
 
 function App() {
-  const [rowData, setRowData] = useState([]);
   const [stats, setStats] = useState({ totalPnl: 0, tradeCount: 0, volume: 0 });
   const gridApiRef = useRef(null);
   const renderedRangeRef = useRef({ start: 0, end: 50 });
   const dataLoadedRef = useRef(false);
   const tradesDataRef = useRef([]);
+  const viewportParamsRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -133,17 +133,16 @@ function App() {
         trades.push(generateTrade(i + 1));
       }
       tradesDataRef.current = trades;
-      setRowData(trades);
       dataLoadedRef.current = true;
+      if (viewportParamsRef.current) {
+        viewportParamsRef.current.setRowCount(TOTAL_ROWS);
+      }
     }, LATENCY_MS);
   }, []);
 
   useEffect(() => {
-    if (dataLoadedRef.current && gridApiRef.current && !intervalRef.current) {
+    if (dataLoadedRef.current && viewportParamsRef.current && !intervalRef.current) {
       intervalRef.current = setInterval(() => {
-        const gridApi = gridApiRef.current;
-        if (!gridApi) return;
-
         const { start, end } = renderedRangeRef.current;
         const visibleRowCount = end - start;
         
@@ -171,7 +170,14 @@ function App() {
         }
 
         if (updates.length > 0) {
-          gridApi.applyTransactionAsync({ update: updates });
+          if (viewportParamsRef.current) {
+            const rangeStart = Math.max(0, start);
+            const rangeEnd = Math.min(TOTAL_ROWS - 1, end);
+            viewportParamsRef.current.setRowData(
+              rangeStart,
+              tradesDataRef.current.slice(rangeStart, rangeEnd + 1)
+            );
+          }
           setStats(prev => ({
             totalPnl: prev.totalPnl + (Math.random() - 0.5) * updates.length * 1000,
             tradeCount: prev.tradeCount + updates.length,
@@ -187,10 +193,36 @@ function App() {
         intervalRef.current = null;
       }
     };
-  }, [rowData]);
+  }, []);
+
+  const viewportDatasource = useMemo(() => ({
+    init: (params) => {
+      viewportParamsRef.current = params;
+      params.setRowCount(TOTAL_ROWS);
+    },
+    setViewportRange: (firstRow, lastRow) => {
+      renderedRangeRef.current = { start: firstRow, end: lastRow };
+      if (!dataLoadedRef.current || !viewportParamsRef.current) return;
+      const rangeStart = Math.max(0, firstRow);
+      const rangeEnd = Math.min(TOTAL_ROWS - 1, lastRow);
+      setTimeout(() => {
+        if (!viewportParamsRef.current) return;
+        viewportParamsRef.current.setRowData(
+          rangeStart,
+          tradesDataRef.current.slice(rangeStart, rangeEnd + 1)
+        );
+      }, LATENCY_MS);
+    },
+    destroy: () => {
+      if (viewportParamsRef.current) {
+        viewportParamsRef.current = null;
+      }
+    }
+  }), []);
 
   const onGridReady = useCallback((params) => {
     gridApiRef.current = params.api;
+    params.api.setViewportDatasource(viewportDatasource);
   }, []);
 
   const onViewportChanged = useCallback((params) => {
@@ -231,9 +263,8 @@ function App() {
         <AgGridReact
           className="ag-theme-custom"
           columnDefs={columnDefs}
-          rowData={rowData}
           defaultColDef={defaultColDef}
-          rowModelType="clientSide"
+          rowModelType="viewport"
           animateRows={false}
           getRowId={(params) => String(params.data.__index)}
           onGridReady={onGridReady}
