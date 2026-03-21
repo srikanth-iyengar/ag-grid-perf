@@ -289,6 +289,7 @@ function App() {
             rowModelType="viewport"
             viewportRowModelPageSize={50}
             viewportRowModelBufferSize={gridConfig.viewportRowModelBufferSize}
+            enableRangeSelection={true}
             animateRows={false}
             getRowId={(params) => String(params.data.__index)}
             onGridReady={onGridReady}

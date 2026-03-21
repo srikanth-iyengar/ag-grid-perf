@@ -102,6 +102,7 @@ interface ColumnItem {
           [viewportDatasource]="viewportDatasource"
           [viewportRowModelPageSize]="50"
           [viewportRowModelBufferSize]="gridConfig.viewportRowModelBufferSize"
+          [enableRangeSelection]="true"
           [animateRows]="false"
           [getRowId]="getRowId"
           [rowBuffer]="gridConfig.rowBuffer"
