@@ -1,3 +1,7 @@
 packages:
-  - 'ag-grid-react-example'
-  - 'ag-grid-angular-example'
+  - 'ag-grid-react-v32'
+  - 'ag-grid-react-v33'
+  - 'ag-grid-react-v35'
+  - 'ag-grid-angular-v32'
+  - 'ag-grid-angular-v33'
+  - 'ag-grid-angular-v35'

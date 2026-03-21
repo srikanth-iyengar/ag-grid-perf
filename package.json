@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start:react": "pnpm --filter ag-grid-react-example dev",
-    "start:angular": "pnpm --filter ag-grid-angular-example start"
+    "start:react": "pnpm --filter ag-grid-react-v35 dev",
+    "start:angular": "pnpm --filter ag-grid-angular-v35 start",
+    "start:react:v32": "pnpm --filter ag-grid-react-v32 dev",
+    "start:react:v33": "pnpm --filter ag-grid-react-v33 dev",
+    "start:react:v35": "pnpm --filter ag-grid-react-v35 dev",
+    "start:angular:v32": "pnpm --filter ag-grid-angular-v32 start",
+    "start:angular:v33": "pnpm --filter ag-grid-angular-v33 start",
+    "start:angular:v35": "pnpm --filter ag-grid-angular-v35 start"
   },
   "keywords": [],
   "author": "",

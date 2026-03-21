@@ -34,25 +34,49 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build React app
-        run: pnpm --filter ag-grid-react-example build
+      - name: Build React v32 app
+        run: pnpm --filter ag-grid-react-v32 build
         env:
-          VITE_BASE_URL: /${{ github.event.repository.name }}/ag-grid-react-example/
+          VITE_BASE_URL: /${{ github.event.repository.name }}/ag-grid-react-v32/
 
-      - name: Build Angular app
-        run: pnpm --filter ag-grid-angular-example exec ng build --base-href /${{ github.event.repository.name }}/ag-grid-angular-example/
+      - name: Build React v33 app
+        run: pnpm --filter ag-grid-react-v33 build
+        env:
+          VITE_BASE_URL: /${{ github.event.repository.name }}/ag-grid-react-v33/
+
+      - name: Build React v35 app
+        run: pnpm --filter ag-grid-react-v35 build
+        env:
+          VITE_BASE_URL: /${{ github.event.repository.name }}/ag-grid-react-v35/
+
+      - name: Build Angular v32 app
+        run: pnpm --filter ag-grid-angular-v32 exec ng build --base-href /${{ github.event.repository.name }}/ag-grid-angular-v32/
+
+      - name: Build Angular v33 app
+        run: pnpm --filter ag-grid-angular-v33 exec ng build --base-href /${{ github.event.repository.name }}/ag-grid-angular-v33/
+
+      - name: Build Angular v35 app
+        run: pnpm --filter ag-grid-angular-v35 exec ng build --base-href /${{ github.event.repository.name }}/ag-grid-angular-v35/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Create combined output directory
         run: |
-          mkdir -p _site/ag-grid-react-example
-          mkdir -p _site/ag-grid-angular-example
+          mkdir -p _site/ag-grid-react-v32
+          mkdir -p _site/ag-grid-react-v33
+          mkdir -p _site/ag-grid-react-v35
+          mkdir -p _site/ag-grid-angular-v32
+          mkdir -p _site/ag-grid-angular-v33
+          mkdir -p _site/ag-grid-angular-v35
           touch _site/.nojekyll
           cp site/index.html _site/index.html
-          cp -r ag-grid-react-example/dist/* _site/ag-grid-react-example/
-          cp -r ag-grid-angular-example/dist/ag-grid-angular-example/browser/* _site/ag-grid-angular-example/
+          cp -r ag-grid-react-v32/dist/* _site/ag-grid-react-v32/
+          cp -r ag-grid-react-v33/dist/* _site/ag-grid-react-v33/
+          cp -r ag-grid-react-v35/dist/* _site/ag-grid-react-v35/
+          cp -r ag-grid-angular-v32/dist/ag-grid-angular-v32/browser/* _site/ag-grid-angular-v32/
+          cp -r ag-grid-angular-v33/dist/ag-grid-angular-v33/browser/* _site/ag-grid-angular-v33/
+          cp -r ag-grid-angular-v35/dist/ag-grid-angular-v35/browser/* _site/ag-grid-angular-v35/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
