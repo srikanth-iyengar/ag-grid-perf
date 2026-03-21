@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { createViewportDatasource, getMockServerConfig, updateMockServerConfig } from './mockServer';
 
 const FRAMEWORK = 'react';
@@ -26,6 +27,20 @@ const REGION = ['NA', 'EU', 'APAC', 'LATAM'];
 const SECTOR = ['Technology', 'Healthcare', 'Finance', 'Energy', 'Consumer', 'Industrial', 'Materials', 'Utilities'];
 const PRIORITY = ['HIGH', 'MEDIUM', 'LOW', 'URGENT'];
 const ALGO = ['VWAP', 'TWAP', 'POV', 'IS', 'AUCO', 'PRIORITY'];
+const THEME_STORAGE_KEY = 'ag-grid-react-theme';
+
+function getInitialTheme() {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 function getCurrentVersion() {
   if (typeof window === 'undefined') {
@@ -216,6 +231,7 @@ function MockServerDevtools({ currentVersion, serverConfig, gridConfig, onApply 
 
 function App() {
   const currentVersion = getCurrentVersion();
+  const [theme, setTheme] = useState(getInitialTheme);
   const [stats, setStats] = useState({ totalPnl: 0, tradeCount: 0, volume: 0 });
   const [serverConfig, setServerConfig] = useState(DEFAULT_CONFIG);
   const [gridConfig, setGridConfig] = useState(DEFAULT_GRID_CONFIG);
@@ -230,6 +246,11 @@ function App() {
       viewportDatasourceRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    document.body.dataset.appTheme = theme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   const flashChangedCells = (rows) => {
     const api = gridApiRef.current;
@@ -292,13 +313,23 @@ function App() {
     resizable: true,
     suppressMovable: true
   }), []);
+  const gridThemeClass = theme === 'dark' ? 'ag-theme-quartz-dark' : 'ag-theme-quartz';
 
   return (
     <>
-      <div className="container">
+      <div className={`container app-shell ${theme}-mode`}>
         <div className="header">
-          <h1>AG Grid React v{currentVersion} - Viewport Row Model <span className="header-sub">Mocked server latency: {serverConfig.latencyMs}ms | Data tick rate: {serverConfig.tickRateMs}ms | Total rows: {serverConfig.totalRows.toLocaleString()}</span></h1>
+          <div>
+            <h1>AG Grid React v{currentVersion} - Viewport Row Model <span className="header-sub">Mocked server latency: {serverConfig.latencyMs}ms | Data tick rate: {serverConfig.tickRateMs}ms | Total rows: {serverConfig.totalRows.toLocaleString()}</span></h1>
+          </div>
           <div className="stats">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((prev) => prev === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </button>
             <div className="stat">
               <span className="stat-label">Total P&L</span>
               <span className={`stat-value ${stats.totalPnl >= 0 ? 'positive' : 'negative'}`}>
@@ -318,7 +349,7 @@ function App() {
 
         <div className="grid-container">
           <AgGridReact
-            className="ag-theme-custom"
+            className={`${gridThemeClass} ag-theme-custom`}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             rowModelType="viewport"

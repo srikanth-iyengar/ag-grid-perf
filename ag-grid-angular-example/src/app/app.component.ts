@@ -24,6 +24,7 @@ const DEFAULT_GRID_CONFIG = {
   viewportRowModelBufferSize: 20
 };
 const AVAILABLE_VERSIONS = ['32', '33', '35'];
+const THEME_STORAGE_KEY = 'ag-grid-angular-theme';
 
 const STATUS = ['PENDING', 'FILLED', 'PARTIAL', 'CANCELLED'];
 
@@ -66,15 +67,22 @@ interface ColumnItem {
   headerName: string;
 }
 
+type ThemeMode = 'light' | 'dark';
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, FormsModule, AgGridAngular],
   template: `
-    <div class="container">
+    <div class="container app-shell" [class.dark-mode]="theme === 'dark'" [class.light-mode]="theme === 'light'">
       <div class="header">
-        <h1>AG Grid Angular v{{ currentVersion }} - Viewport Row Model <span class="header-sub">Mocked server latency: {{ serverConfig.latencyMs }}ms | Data tick rate: {{ serverConfig.tickRateMs }}ms | Total rows: {{ serverConfig.totalRows | number }}</span></h1>
+        <div>
+          <h1>AG Grid Angular v{{ currentVersion }} - Viewport Row Model <span class="header-sub">Mocked server latency: {{ serverConfig.latencyMs }}ms | Data tick rate: {{ serverConfig.tickRateMs }}ms | Total rows: {{ serverConfig.totalRows | number }}</span></h1>
+        </div>
         <div class="stats">
+          <button class="theme-toggle" type="button" (click)="toggleTheme()">
+            {{ theme === 'dark' ? 'Light mode' : 'Dark mode' }}
+          </button>
           <div class="stat">
             <span class="stat-label">Total P&L</span>
             <span [class.stat-value]="true" [class.positive]="totalPnl >= 0" [class.negative]="totalPnl < 0">
@@ -95,6 +103,8 @@ interface ColumnItem {
       <div class="grid-container">
         <ag-grid-angular
           class="ag-theme-custom"
+          [class.ag-theme-quartz]="theme === 'light'"
+          [class.ag-theme-quartz-dark]="theme === 'dark'"
           style="width: 100%; height: 100%;"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
@@ -167,19 +177,27 @@ interface ColumnItem {
 
     .header {
       padding: 16px 20px;
-      background: #1a1a2e;
-      color: white;
+      background: var(--panel-bg);
+      color: var(--panel-text);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
     }
 
     .header h1 {
       margin: 0 0 12px 0;
       font-size: 20px;
       font-weight: 600;
+      color: var(--accent);
     }
 
     .header-sub {
       font-size: 12px;
-      opacity: 0.7;
+      color: var(--muted-text);
       font-weight: normal;
     }
 
@@ -196,13 +214,14 @@ interface ColumnItem {
     .stat-label {
       font-size: 11px;
       text-transform: uppercase;
-      opacity: 0.7;
+      color: var(--muted-text);
       margin-bottom: 2px;
     }
 
     .stat-value {
       font-size: 18px;
       font-weight: 600;
+      color: var(--accent);
     }
 
     .positive {
@@ -216,6 +235,21 @@ interface ColumnItem {
     .grid-container {
       flex: 1;
       overflow: hidden;
+      background: var(--panel-bg);
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--panel-text);
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
     .devtools-shell {
@@ -233,11 +267,11 @@ interface ColumnItem {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--control-border);
       border-radius: 999px;
       padding: 10px 14px;
-      background: rgba(15, 23, 42, 0.96);
-      color: #f8fafc;
+      background: var(--control-bg);
+      color: var(--control-text);
       box-shadow: 0 14px 40px rgba(15, 23, 42, 0.32);
       cursor: pointer;
     }
@@ -261,9 +295,9 @@ interface ColumnItem {
       width: 260px;
       border-radius: 18px;
       padding: 16px;
-      background: rgba(15, 23, 42, 0.97);
-      color: #e2e8f0;
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: var(--control-bg);
+      color: var(--control-text);
+      border: 1px solid var(--control-border);
       box-shadow: 0 20px 45px rgba(15, 23, 42, 0.42);
       backdrop-filter: blur(16px);
     }
@@ -276,7 +310,7 @@ interface ColumnItem {
     .devtools-subtitle {
       margin-top: 2px;
       margin-bottom: 14px;
-      color: #94a3b8;
+      color: var(--muted-text);
       font-size: 12px;
     }
 
@@ -286,23 +320,23 @@ interface ColumnItem {
       gap: 6px;
       margin-bottom: 12px;
       font-size: 12px;
-      color: #cbd5e1;
+      color: var(--muted-text);
     }
 
     .devtools-field input {
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      border: 1px solid var(--control-border);
       border-radius: 10px;
-      background: rgba(30, 41, 59, 0.95);
-      color: #f8fafc;
+      background: var(--input-bg);
+      color: var(--control-text);
       padding: 10px 12px;
       font: inherit;
     }
 
     .devtools-field select {
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      border: 1px solid var(--control-border);
       border-radius: 10px;
-      background: rgba(30, 41, 59, 0.95);
-      color: #f8fafc;
+      background: var(--input-bg);
+      color: var(--control-text);
       padding: 10px 12px;
       font: inherit;
     }
@@ -323,15 +357,53 @@ interface ColumnItem {
     }
 
     .devtools-ghost {
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      border: 1px solid var(--control-border);
       background: transparent;
-      color: #cbd5e1;
+      color: var(--control-text);
     }
 
     .devtools-primary {
       border: none;
       background: linear-gradient(135deg, #38bdf8, #22c55e);
       color: #0f172a;
+    }
+
+    .ag-theme-custom {
+      --ag-font-family: 'Monaco', 'Menlo', monospace;
+      --ag-font-size: 13px;
+      --ag-cell-horizontal-padding: 12px;
+    }
+
+    .app-shell.dark-mode .ag-theme-custom {
+      --ag-background-color: #16213e;
+      --ag-foreground-color: #eee;
+      --ag-header-background-color: #0f3460;
+      --ag-header-foreground-color: #00d4ff;
+      --ag-border-color: #0f3460;
+      --ag-odd-row-background-color: #1a1a2e;
+      --ag-row-hover-color: rgba(15, 52, 96, 0.7);
+      --ag-selected-row-background-color: rgba(15, 52, 96, 0.8);
+    }
+
+    .app-shell.light-mode .ag-theme-custom {
+      --ag-background-color: #ffffff;
+      --ag-foreground-color: #10233f;
+      --ag-header-background-color: #dfeaf7;
+      --ag-header-foreground-color: #0b6bcb;
+      --ag-border-color: #c7d6ea;
+      --ag-odd-row-background-color: #f6f9fc;
+      --ag-row-hover-color: rgba(173, 202, 236, 0.35);
+      --ag-selected-row-background-color: rgba(173, 202, 236, 0.45);
+    }
+
+    @media (max-width: 900px) {
+      .header {
+        flex-direction: column;
+      }
+
+      .stats {
+        flex-wrap: wrap;
+      }
     }
   `]
 })
@@ -386,6 +458,7 @@ export class AppComponent implements OnInit, OnDestroy {
   draftGridConfig = { ...DEFAULT_GRID_CONFIG };
   devtoolsOpen = false;
   draftDirty = false;
+  theme: ThemeMode = this.getInitialTheme();
 
   totalPnl = 0;
   tradeCount = 0;
@@ -396,6 +469,7 @@ export class AppComponent implements OnInit, OnDestroy {
   getRowId = (params: GetRowIdParams) => String(params.data?.__index);
 
   async ngOnInit() {
+    this.applyTheme();
     this.updateGridColumns();
     try {
       const config = await getMockServerConfig();
@@ -448,6 +522,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.draftConfig = { ...this.serverConfig };
       this.draftGridConfig = { ...this.gridConfig };
     }
+  }
+
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    this.applyTheme();
   }
 
   private flashChangedCells(rows: UpdatedViewportRow[]) {
@@ -542,5 +621,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+  }
+
+  private getInitialTheme(): ThemeMode {
+    if (typeof window === 'undefined') {
+      return 'dark';
+    }
+
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  private applyTheme() {
+    if (typeof document !== 'undefined') {
+      document.body.dataset['appTheme'] = this.theme;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(THEME_STORAGE_KEY, this.theme);
+    }
   }
 }
