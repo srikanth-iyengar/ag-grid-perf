@@ -38,14 +38,14 @@ importers:
         specifier: ^17.0.0
         version: 17.3.12(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(@angular/platform-browser@17.3.12(@angular/animations@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)))(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)))(rxjs@7.8.2)
       ag-grid-angular:
-        specifier: ^31.0.0
-        version: 31.3.4(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(ag-grid-community@31.3.4)
+        specifier: ^35.0.0
+        version: 35.1.0(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))
       ag-grid-community:
-        specifier: ^31.0.0
-        version: 31.3.4
+        specifier: ^35.0.0
+        version: 35.1.0
       ag-grid-enterprise:
-        specifier: ^31.0.0
-        version: 31.3.4
+        specifier: ^35.0.0
+        version: 35.1.0
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -72,14 +72,14 @@ importers:
   ag-grid-react-example:
     dependencies:
       ag-grid-community:
-        specifier: ^31.0.0
-        version: 31.3.4
+        specifier: ^35.0.0
+        version: 35.1.0
       ag-grid-enterprise:
-        specifier: ^31.0.0
-        version: 31.3.4
+        specifier: ^35.0.0
+        version: 35.1.0
       ag-grid-react:
-        specifier: ^31.0.0
-        version: 31.3.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^35.0.0
+        version: 35.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -1504,27 +1504,38 @@ packages:
     resolution: {integrity: sha512-OXwN5b9pCUXNQHJpwwD2qP40byEmSgzj8B4ydSN0uMNYWiFmJ6x6KwUllMmfk8Rwu/HJDFR7U8ubsWBoN0Xp0A==}
     engines: {node: '>=8.9'}
 
-  ag-charts-community@9.3.2:
-    resolution: {integrity: sha512-jw2llxTYzGAZ24m7eQsKS24BnJBhspZKsL03DbqH0wxLepbEcC3eeWICe+02TBQCbFVsWmSsYukjzQg3FkVWRw==}
+  ag-charts-community@13.1.0:
+    resolution: {integrity: sha512-w+uFTjxlAoTq1+8tgUORtB/zr9jm38ibXzbbWnkBP9Dep9yahi5a1jZL7yExAX35uq3g9QtjTh0Oj/QPDBQ9Ew==}
 
-  ag-grid-angular@31.3.4:
-    resolution: {integrity: sha512-ELDqSc0R1fZRQBPTJgYWWF3Gbe7EbenmwzH3cNaQp38HbBQFkUcAvDqKHgSfmESe1GM76PoMHMxpCdqaWM3SmQ==}
+  ag-charts-core@13.1.0:
+    resolution: {integrity: sha512-mLHJZ8oU5CPeLRURescdISCtMsiiA/m4d1iBr6aQBEgiTVogRMGpFpsYNtQiYtoW2sRh+62I9sN8fhC3JQjX/g==}
+
+  ag-charts-enterprise@13.1.0:
+    resolution: {integrity: sha512-WyKIqvkOdtdvEJxq76hjTacXTCpIR2lq1JDMYc5MtoHYtiVt1KHApsxS0nbutp/CxGKRgdOqJtxUF+3r33pgPw==}
+
+  ag-charts-locale@13.1.0:
+    resolution: {integrity: sha512-mPgJnVsOI4Cf17CAlRh8BvLz19e165sdQJeUXNaB7M+DPB+pxODOcfx4oqZlR4Wc8Zu++TGb/2ueHa/aeV2qeQ==}
+
+  ag-charts-types@13.1.0:
+    resolution: {integrity: sha512-DytRM3CXli+Y013SC1Mr8lQBrhVTACK+11ilDHOhwUM0sRpmGuR51XFGcBKOliW1Vas1AycP31Cm3Pp0jx3hqw==}
+
+  ag-grid-angular@35.1.0:
+    resolution: {integrity: sha512-YUsswwPiWP+xbXMCvkIc/25ABABQFte6MZSrXjbKB1cFpyWaUaGabetrPcioHi50MwK+N+oaSnIQPFh/A3ExqA==}
     peerDependencies:
-      '@angular/common': '>= 14.0.0'
-      '@angular/core': '>= 14.0.0'
-      ag-grid-community: 31.3.4
+      '@angular/common': '>= 18.0.0'
+      '@angular/core': '>= 18.0.0'
 
-  ag-grid-community@31.3.4:
-    resolution: {integrity: sha512-jOxQO86C6eLnk1GdP24HB6aqaouFzMWizgfUwNY5MnetiWzz9ZaAmOGSnW/XBvdjXvC5Fpk3gSbvVKKQ7h9kBw==}
+  ag-grid-community@35.1.0:
+    resolution: {integrity: sha512-yWFQfRNjv3KUBkHHzFdDOYGjPcDMU0B8Up4qG651diFlGRUGEGVs94SK73niWvk1FDZdpV9oWrwq3f30/qAoVg==}
 
-  ag-grid-enterprise@31.3.4:
-    resolution: {integrity: sha512-kreGRsFjz41APXXchLcQFtginnrmIGQYH48p7ydz33x8v+aja06HS5yEM6NP8j+VVHX43LeXnsl5Y4TLRgSoeg==}
+  ag-grid-enterprise@35.1.0:
+    resolution: {integrity: sha512-Zhod3fpgWa9KE0JNFkkkb8/3Qv66UR9KF3wFyCz++wQUtQm5wdExul4UA8wm1ukvBmD6QyBLQ5Cs9zDnIEb0uQ==}
 
-  ag-grid-react@31.3.4:
-    resolution: {integrity: sha512-WmPASHRFGSTxCMRStWG5bRtln0Ugsdqbb3+Y8sEyGHeLw4hXqfpqie3lT9kqCOl7wPWUjCpwmFdXzRnWPmyyeg==}
+  ag-grid-react@35.1.0:
+    resolution: {integrity: sha512-n8pJh4RTpos8stzz91nEhTCZZdLy9bjQYAGxIxJ8ocVagnEsAk9T5Vz/VEKUhOGz36il68n7TVbVWSuUA3a+mg==}
     peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
@@ -5428,25 +5439,50 @@ snapshots:
       loader-utils: 2.0.4
       regex-parser: 2.3.1
 
-  ag-charts-community@9.3.2: {}
+  ag-charts-community@13.1.0:
+    dependencies:
+      ag-charts-core: 13.1.0
+      ag-charts-locale: 13.1.0
+      ag-charts-types: 13.1.0
+    optional: true
 
-  ag-grid-angular@31.3.4(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(ag-grid-community@31.3.4):
+  ag-charts-core@13.1.0:
+    dependencies:
+      ag-charts-types: 13.1.0
+    optional: true
+
+  ag-charts-enterprise@13.1.0:
+    dependencies:
+      ag-charts-community: 13.1.0
+      ag-charts-core: 13.1.0
+    optional: true
+
+  ag-charts-locale@13.1.0:
+    optional: true
+
+  ag-charts-types@13.1.0: {}
+
+  ag-grid-angular@35.1.0(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)):
     dependencies:
       '@angular/common': 17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2)
       '@angular/core': 17.3.12(rxjs@7.8.2)(zone.js@0.14.10)
-      ag-grid-community: 31.3.4
+      ag-grid-community: 35.1.0
       tslib: 2.8.1
 
-  ag-grid-community@31.3.4: {}
-
-  ag-grid-enterprise@31.3.4:
+  ag-grid-community@35.1.0:
     dependencies:
-      ag-charts-community: 9.3.2
-      ag-grid-community: 31.3.4
+      ag-charts-types: 13.1.0
 
-  ag-grid-react@31.3.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  ag-grid-enterprise@35.1.0:
     dependencies:
-      ag-grid-community: 31.3.4
+      ag-grid-community: 35.1.0
+    optionalDependencies:
+      ag-charts-community: 13.1.0
+      ag-charts-enterprise: 13.1.0
+
+  ag-grid-react@35.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      ag-grid-community: 35.1.0
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

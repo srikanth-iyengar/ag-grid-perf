@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import { createViewportDatasource, getMockServerConfig, updateMockServerConfig } from './mockServer';
 
@@ -283,8 +282,9 @@ function App() {
 
         <div className="grid-container">
           <AgGridReact
-            className="ag-theme-custom"
-            columnDefs={columnDefs}
+          className="ag-theme-custom"
+          theme="legacy"
+          columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             rowModelType="viewport"
             viewportRowModelPageSize={50}

@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
-import 'ag-grid-enterprise';
 import {
   CellClassParams,
   Column,
@@ -96,6 +95,7 @@ interface ColumnItem {
         <ag-grid-angular
           class="ag-theme-custom"
           style="width: 100%; height: 100%;"
+          [theme]="'legacy'"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [rowModelType]="'viewport'"

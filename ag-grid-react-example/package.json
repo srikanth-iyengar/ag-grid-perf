@@ -11,9 +11,9 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "ag-grid-community": "^31.0.0",
-    "ag-grid-enterprise": "^31.0.0",
-    "ag-grid-react": "^31.0.0"
+    "ag-grid-community": "^35.0.0",
+    "ag-grid-enterprise": "^35.0.0",
+    "ag-grid-react": "^35.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",

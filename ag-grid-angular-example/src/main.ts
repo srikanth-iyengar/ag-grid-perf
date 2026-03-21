@@ -1,7 +1,11 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { ModuleRegistry } from 'ag-grid-community';
+import { AllEnterpriseModule } from 'ag-grid-enterprise';
 import { registerMockServer } from './app/mock-server';
+
+ModuleRegistry.registerModules([AllEnterpriseModule]);
 
 async function bootstrap() {
   await registerMockServer();
