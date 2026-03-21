@@ -97,3 +97,110 @@ body {
   --ag-header-foreground-color: #00d4ff;
   --ag-cell-horizontal-padding: 12px;
 }
+
+.devtools-shell {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.devtools-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #f8fafc;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.32);
+  cursor: pointer;
+}
+
+.devtools-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+}
+
+.devtools-icon {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.devtools-panel {
+  width: 260px;
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.97);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(16px);
+}
+
+.devtools-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.devtools-subtitle {
+  margin-top: 2px;
+  margin-bottom: 14px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.devtools-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.devtools-field input {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.95);
+  color: #f8fafc;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.devtools-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.devtools-actions button {
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.devtools-ghost {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: transparent;
+  color: #cbd5e1;
+}
+
+.devtools-primary {
+  border: none;
+  background: linear-gradient(135deg, #38bdf8, #22c55e);
+  color: #0f172a;
+}

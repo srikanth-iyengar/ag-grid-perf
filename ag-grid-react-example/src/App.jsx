@@ -1,10 +1,19 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
+import { createViewportDatasource, getMockServerConfig, updateMockServerConfig } from './mockServer';
 
-const LATENCY_MS = 70;
-const TICK_RATE_MS = 100;
-const TOTAL_ROWS = 100000;
+const DEFAULT_CONFIG = {
+  latencyMs: 70,
+  tickRateMs: 100,
+  totalRows: 100000
+};
+
+const DEFAULT_GRID_CONFIG = {
+  rowBuffer: 0,
+  viewportRowModelBufferSize: 20
+};
 
 const SYMBOLS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', 'NVDA', 'TSLA', 'JPM', 'V', 'WMT', 'JNJ', 'PG', 'MA', 'UNH', 'HD'];
 const SIDE = ['BUY', 'SELL'];
@@ -64,34 +73,34 @@ const columnDefs = [
   { field: 'id', headerName: 'Trade ID', width: 110, pinned: 'left' },
   { field: 'orderId', headerName: 'Order ID', width: 120 },
   { field: 'symbol', headerName: 'Symbol', width: 70 },
-  { field: 'side', headerName: 'Side', width: 60, 
-    cellStyle: params => params.value === 'BUY' ? { color: '#00ff88' } : { color: '#ff4757' } 
+  { field: 'side', headerName: 'Side', width: 60,
+    cellStyle: (params) => params.value === 'BUY' ? { color: '#00ff88' } : { color: '#ff4757' }
   },
   { field: 'orderType', headerName: 'Type', width: 80 },
   { field: 'quantity', headerName: 'Qty', width: 60, type: 'numericColumn' },
   { field: 'filledQuantity', headerName: 'Filled', width: 70, type: 'numericColumn' },
   { field: 'limitPrice', headerName: 'Limit', width: 80, type: 'numericColumn',
-    valueFormatter: params => params.value ? `$${params.value.toFixed(2)}` : '',
+    valueFormatter: (params) => params.value ? `$${params.value.toFixed(2)}` : '',
     cellStyle: { textAlign: 'right' }
   },
   { field: 'marketPrice', headerName: 'Market', width: 80, type: 'numericColumn',
-    valueFormatter: params => params.value ? `$${params.value.toFixed(2)}` : '',
+    valueFormatter: (params) => params.value ? `$${params.value.toFixed(2)}` : '',
     cellStyle: { textAlign: 'right' }
   },
   { field: 'avgPrice', headerName: 'Avg', width: 80, type: 'numericColumn',
-    valueFormatter: params => params.value ? `$${params.value.toFixed(2)}` : '',
+    valueFormatter: (params) => params.value ? `$${params.value.toFixed(2)}` : '',
     cellStyle: { textAlign: 'right' }
   },
   { field: 'notional', headerName: 'Notional', width: 110, type: 'numericColumn',
-    valueFormatter: params => params.value ? `$${params.value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '',
+    valueFormatter: (params) => params.value ? `$${params.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '',
     cellStyle: { textAlign: 'right' }
   },
   { field: 'commission', headerName: 'Comm', width: 70, type: 'numericColumn',
-    valueFormatter: params => params.value ? `$${params.value.toFixed(2)}` : '',
+    valueFormatter: (params) => params.value ? `$${params.value.toFixed(2)}` : '',
     cellStyle: { textAlign: 'right' }
   },
   { field: 'status', headerName: 'Status', width: 80,
-    cellStyle: params => {
+    cellStyle: (params) => {
       const colors = { PENDING: '#ffa502', FILLED: '#00ff88', PARTIAL: '#00d4ff', CANCELLED: '#ff4757' };
       return { color: colors[params.value] || '#eee' };
     }
@@ -104,7 +113,7 @@ const columnDefs = [
   { field: 'sector', headerName: 'Sector', width: 90 },
   { field: 'settlementDate', headerName: 'Settle', width: 90 },
   { field: 'timestamp', headerName: 'Timestamp', width: 160,
-    valueFormatter: params => params.value ? new Date(params.value).toISOString() : ''
+    valueFormatter: (params) => params.value ? new Date(params.value).toISOString() : ''
   },
   { field: 'priority', headerName: 'Priority', width: 70 },
   { field: 'algo', headerName: 'Algo', width: 80 },
@@ -117,119 +126,131 @@ const columnDefs = [
   { field: 'sedol', headerName: 'SEDOL', width: 80 }
 ];
 
+function ConfigInput({ label, value, min, step = 1, onChange }) {
+  return (
+    <label className="devtools-field">
+      <span>{label}</span>
+      <input type="number" min={min} step={step} value={value} onChange={onChange} />
+    </label>
+  );
+}
+
+function MockServerDevtools({ serverConfig, gridConfig, onApply }) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState({ ...serverConfig, ...gridConfig });
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (!open || !dirty) {
+      setDraft({ ...serverConfig, ...gridConfig });
+      setDirty(false);
+    }
+  }, [serverConfig, gridConfig, open, dirty]);
+
+  const updateDraft = (field) => (event) => {
+    setDirty(true);
+    setDraft((prev) => ({
+      ...prev,
+      [field]: Number(event.target.value)
+    }));
+  };
+
+  return (
+    <div className={`devtools-shell ${open ? 'open' : ''}`}>
+      <button className="devtools-toggle" type="button" onClick={() => setOpen((prev) => !prev)}>
+        <span className="devtools-dot" />
+        <span className="devtools-icon">Tools</span>
+      </button>
+      {open ? (
+        <div className="devtools-panel">
+          <div className="devtools-title">Mock Server</div>
+          <div className="devtools-subtitle">Viewport controls</div>
+          <ConfigInput label="Latency ms" value={draft.latencyMs} min={0} onChange={updateDraft('latencyMs')} />
+          <ConfigInput label="Tick rate ms" value={draft.tickRateMs} min={16} onChange={updateDraft('tickRateMs')} />
+          <ConfigInput label="Total rows" value={draft.totalRows} min={50} onChange={updateDraft('totalRows')} />
+          <ConfigInput label="Row buffer" value={draft.rowBuffer} min={0} onChange={updateDraft('rowBuffer')} />
+          <ConfigInput label="Viewport buffer" value={draft.viewportRowModelBufferSize} min={0} onChange={updateDraft('viewportRowModelBufferSize')} />
+          <div className="devtools-actions">
+            <button type="button" className="devtools-ghost" onClick={() => { setDraft({ ...serverConfig, ...gridConfig }); setDirty(false); }}>Reset</button>
+            <button type="button" className="devtools-primary" onClick={() => { setDirty(false); onApply(draft); }}>Apply</button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function App() {
   const [stats, setStats] = useState({ totalPnl: 0, tradeCount: 0, volume: 0 });
+  const [serverConfig, setServerConfig] = useState(DEFAULT_CONFIG);
+  const [gridConfig, setGridConfig] = useState(DEFAULT_GRID_CONFIG);
   const gridApiRef = useRef(null);
-  const renderedRangeRef = useRef({ start: 0, end: 50 });
-  const dataLoadedRef = useRef(false);
-  const tradesDataRef = useRef([]);
-  const viewportParamsRef = useRef(null);
-  const intervalRef = useRef(null);
+  const viewportDatasourceRef = useRef(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      const trades = [];
-      for (let i = 0; i < TOTAL_ROWS; i++) {
-        trades.push(generateTrade(i + 1));
-      }
-      tradesDataRef.current = trades;
-      dataLoadedRef.current = true;
-      if (viewportParamsRef.current) {
-        viewportParamsRef.current.setRowCount(TOTAL_ROWS);
-      }
-    }, LATENCY_MS);
-  }, []);
-
-  useEffect(() => {
-    if (dataLoadedRef.current && viewportParamsRef.current && !intervalRef.current) {
-      intervalRef.current = setInterval(() => {
-        const { start, end } = renderedRangeRef.current;
-        const visibleRowCount = end - start;
-        
-        if (visibleRowCount <= 0) return;
-
-        const numUpdates = Math.min(Math.floor(Math.random() * 5) + 1, visibleRowCount);
-        const updates = [];
-
-        for (let i = 0; i < numUpdates; i++) {
-          const rowIndex = start + Math.floor(Math.random() * visibleRowCount);
-          const trade = tradesDataRef.current[rowIndex];
-          if (!trade) continue;
-
-          trade.marketPrice = parseFloat((trade.marketPrice * (1 + (Math.random() - 0.5) * 0.002)).toFixed(2));
-          trade.avgPrice = parseFloat(trade.marketPrice.toFixed(2));
-          trade.filledQuantity = Math.min(trade.filledQuantity + Math.floor(Math.random() * 10), trade.quantity);
-          trade.notional = parseFloat((trade.avgPrice * trade.quantity).toFixed(2));
-          trade.commission = parseFloat((Math.random() * 10).toFixed(2));
-          if (Math.random() > 0.7) {
-            trade.status = randomElement(STATUS);
-          }
-          trade.timestamp = Date.now();
-
-          updates.push({ ...trade });
-        }
-
-        if (updates.length > 0) {
-          if (viewportParamsRef.current) {
-            const rangeStart = Math.max(0, start);
-            const rangeEnd = Math.min(TOTAL_ROWS - 1, end);
-            viewportParamsRef.current.setRowData(
-              rangeStart,
-              tradesDataRef.current.slice(rangeStart, rangeEnd + 1)
-            );
-          }
-          setStats(prev => ({
-            totalPnl: prev.totalPnl + (Math.random() - 0.5) * updates.length * 1000,
-            tradeCount: prev.tradeCount + updates.length,
-            volume: prev.volume + updates.reduce((sum, t) => sum + t.notional, 0)
-          }));
-        }
-      }, TICK_RATE_MS);
-    }
+    void getMockServerConfig().then(setServerConfig).catch(() => {});
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      viewportDatasourceRef.current?.destroy?.();
+      viewportDatasourceRef.current = null;
     };
   }, []);
 
-  const viewportDatasource = useMemo(() => ({
-    init: (params) => {
-      viewportParamsRef.current = params;
-      params.setRowCount(TOTAL_ROWS);
-    },
-    setViewportRange: (firstRow, lastRow) => {
-      renderedRangeRef.current = { start: firstRow, end: lastRow };
-      if (!dataLoadedRef.current || !viewportParamsRef.current) return;
-      const rangeStart = Math.max(0, firstRow);
-      const rangeEnd = Math.min(TOTAL_ROWS - 1, lastRow);
-      setTimeout(() => {
-        if (!viewportParamsRef.current) return;
-        viewportParamsRef.current.setRowData(
-          rangeStart,
-          tradesDataRef.current.slice(rangeStart, rangeEnd + 1)
-        );
-      }, LATENCY_MS);
-    },
-    destroy: () => {
-      if (viewportParamsRef.current) {
-        viewportParamsRef.current = null;
-      }
+  const flashChangedCells = (rows) => {
+    const api = gridApiRef.current;
+    if (!api || rows.length === 0) {
+      return;
     }
-  }), []);
 
-  const onGridReady = useCallback((params) => {
-    gridApiRef.current = params.api;
-    params.api.setViewportDatasource(viewportDatasource);
-  }, []);
+    requestAnimationFrame(() => {
+      rows.forEach((row) => {
+        const rowNode = api.getRowNode(String(row.__index));
+        if (!rowNode) {
+          return;
+        }
 
-  const onViewportChanged = useCallback((params) => {
-    const topRow = params.api.getFirstDisplayedRow();
-    const bottomRow = params.api.getLastDisplayedRow();
-    renderedRangeRef.current = { start: topRow, end: bottomRow };
-  }, []);
+        const columns = (row.__changedFields ?? [])
+          .map((field) => api.getColumn(field))
+          .filter(Boolean);
+
+        if (columns.length === 0) {
+          return;
+        }
+
+        api.flashCells({
+          rowNodes: [rowNode],
+          columns
+        });
+      });
+    });
+  };
+
+  const onGridReady = ({ api }) => {
+    gridApiRef.current = api;
+    const datasource = createViewportDatasource({
+      onStats: setStats,
+      onRowCount: (rowCount) => setServerConfig((prev) => ({ ...prev, totalRows: rowCount })),
+      onConfig: setServerConfig,
+      onRowsUpdated: flashChangedCells
+    });
+
+    viewportDatasourceRef.current = datasource;
+    api.setViewportDatasource(datasource);
+  };
+
+  const applyConfig = async (nextConfig) => {
+    const config = await updateMockServerConfig({
+      latencyMs: nextConfig.latencyMs,
+      tickRateMs: nextConfig.tickRateMs,
+      totalRows: nextConfig.totalRows
+    });
+    setServerConfig(config);
+    setGridConfig({
+      rowBuffer: nextConfig.rowBuffer,
+      viewportRowModelBufferSize: nextConfig.viewportRowModelBufferSize
+    });
+    viewportDatasourceRef.current?.refresh?.();
+  };
 
   const defaultColDef = useMemo(() => ({
     sortable: true,
@@ -238,45 +259,46 @@ function App() {
   }), []);
 
   return (
-    <div className="container">
-      <div className="header">
-        <h1>AG Grid React - Viewport Row Model <span className="header-sub">Mocked server latency: 70ms | Data tick rate: 100ms | Total rows: {TOTAL_ROWS.toLocaleString()}</span></h1>
-        <div className="stats">
-          <div className="stat">
-            <span className="stat-label">Total P&L</span>
-            <span className={`stat-value ${stats.totalPnl >= 0 ? 'positive' : 'negative'}`}>
-              ${stats.totalPnl.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-            </span>
-          </div>
-          <div className="stat">
-            <span className="stat-label">Trade Count</span>
-            <span className="stat-value">{stats.tradeCount.toLocaleString()}</span>
-          </div>
-          <div className="stat">
-            <span className="stat-label">Volume</span>
-            <span className="stat-value">${(stats.volume / 1000000).toFixed(2)}M</span>
+    <>
+      <div className="container">
+        <div className="header">
+          <h1>AG Grid React - Viewport Row Model <span className="header-sub">Mocked server latency: {serverConfig.latencyMs}ms | Data tick rate: {serverConfig.tickRateMs}ms | Total rows: {serverConfig.totalRows.toLocaleString()}</span></h1>
+          <div className="stats">
+            <div className="stat">
+              <span className="stat-label">Total P&L</span>
+              <span className={`stat-value ${stats.totalPnl >= 0 ? 'positive' : 'negative'}`}>
+                ${stats.totalPnl.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="stat">
+              <span className="stat-label">Trade Count</span>
+              <span className="stat-value">{stats.tradeCount.toLocaleString()}</span>
+            </div>
+            <div className="stat">
+              <span className="stat-label">Volume</span>
+              <span className="stat-value">${(stats.volume / 1000000).toFixed(2)}M</span>
+            </div>
           </div>
         </div>
+
+        <div className="grid-container">
+          <AgGridReact
+            className="ag-theme-custom"
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            rowModelType="viewport"
+            viewportRowModelPageSize={50}
+            viewportRowModelBufferSize={gridConfig.viewportRowModelBufferSize}
+            animateRows={false}
+            getRowId={(params) => String(params.data.__index)}
+            onGridReady={onGridReady}
+            rowBuffer={gridConfig.rowBuffer}
+            suppressCellFocus={true}
+          />
+        </div>
       </div>
-      
-      <div className="grid-container">
-        <AgGridReact
-          className="ag-theme-custom"
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          rowModelType="viewport"
-          animateRows={false}
-          getRowId={(params) => String(params.data.__index)}
-          onGridReady={onGridReady}
-          onViewportChanged={onViewportChanged}
-          rowBuffer={0}
-          viewportRowModelPageSize={40}
-          viewportRowModelBufferSize={0}
-          suppressCellFocus={true}
-          enableCellChangeFlash={true}
-        />
-      </div>
-    </div>
+      <MockServerDevtools serverConfig={serverConfig} gridConfig={gridConfig} onApply={applyConfig} />
+    </>
   );
 }
 
